@@ -3,8 +3,10 @@ package awscala
 class DefaultCredentialsProvider extends CredentialsProvider {
   private val provider = new com.amazonaws.auth.DefaultAWSCredentialsProviderChain
   override def getCredentials: Credentials = {
-    val credentials = provider.getCredentials
-    Credentials(credentials.getAWSAccessKeyId, credentials.getAWSSecretKey)
+    provider.getCredentials match {
+      case sc: com.amazonaws.auth.AWSSessionCredentials => Credentials(sc.getAWSAccessKeyId, sc.getAWSSecretKey, sc.getSessionToken)
+      case c => Credentials(c.getAWSAccessKeyId, c.getAWSSecretKey)
+    }
   }
   override def refresh: Unit = provider.refresh
 }
